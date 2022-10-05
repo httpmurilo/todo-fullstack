@@ -10,6 +10,6 @@ import java.util.List;
 @Repository
 public interface TodoRepository extends JpaRepository<Todo, Integer> {
 
-    @Query("SELECT T FROM Todo WHERE T.finalizado = :false ORDER BY T.DataParaFinalizar")
-    List<Todo> findAllOpen();
+    @Query("SELECT T FROM Todo WHERE T.finalizado = :status ORDER BY T.DataParaFinalizar")
+    List<Todo> findAllByStatus(Boolean status);
 }

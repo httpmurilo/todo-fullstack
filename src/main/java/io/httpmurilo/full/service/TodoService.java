@@ -1,15 +1,18 @@
 package io.httpmurilo.full.service;
 
 import io.httpmurilo.full.domain.Todo;
+import io.httpmurilo.full.exception.CustomNotFoundException;
 import io.httpmurilo.full.repository.TodoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TodoService {
@@ -30,11 +33,35 @@ public class TodoService {
     }
 
     public Todo obterTodoPorId(Integer id) {
-        return repository.findById(id).get();
+        Optional<Todo> todo = repository.findById(id);
+        return todo.orElseThrow(() -> new CustomNotFoundException("Objeto não encontrado no banco de dados : " + id + Todo.class.getName()));
     }
 
-    public List<Todo> findAllOpen() {
-        List<Todo> list = repository.findAllOpen();
+    public List<Todo> findAllByStatus(Boolean status) {
+        List<Todo> list = repository.findAllByStatus(status);
         return list;
     }
+
+    public List<Todo> findAll() {
+        return repository.findAll();
+    }
+
+    public Todo create(Todo todo) {
+        todo.setId(null);
+        return repository.save(todo);
+    }
+
+    public void deleteById(Integer id) {
+        repository.deleteById(id);
+    }
+
+    public Todo update(Integer id, Todo todo) {
+            return repository
+                    .findById(id)
+                    .map(todoExistente -> {
+                        todo.setId(todoExistente.getId());
+                        repository.save(todo);
+                        return todoExistente;
+                    }).get();
+        }
 }
